@@ -1,0 +1,8 @@
+groups:
+  - name: example
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        # usually at least 5 minutes is recommended to reduce noise and mitigate various races
+        # inherent in monitoring
+        for: 1m

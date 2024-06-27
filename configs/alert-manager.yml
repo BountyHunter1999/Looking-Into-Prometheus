@@ -1,0 +1,11 @@
+global:
+  smtp_smarthost: "mailpit:1025"
+  smtp_from: "hariom@example.org"
+  smtp_require_tls: false # this will tell alert manager not to require TLS
+route:
+  receiver: example-email
+  group_by: [alertname]
+receivers:
+  - name: example-email
+    email_configs:
+      - to: "shrish@thefireflytech.com"
