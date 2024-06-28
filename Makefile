@@ -11,5 +11,6 @@ run_first_alert:
 run_app_alert_py:
 	cd 2-Program-Integration && docker build -t prom-py .
 	-docker network create prom2
-	-docker rm -f prom-py
-	docker run -d --rm -p 8000:8000 -p 8001:8001 --network prom2 prom-py
+	-docker rm -f my-py prometheus
+	docker run --rm -d -p 9090:9090 --network prom2 --name prometheus -v $$(pwd)/2-Program-Integration/configs/prometheus.yml:/etc/prometheus/prometheus.yml -v $$(pwd)/2-Program-Integration/configs/rules.yml:/etc/prometheus/rules.yml prom/prometheus:v2.53.0
+	docker run -d --rm -v $$(pwd)/2-Program-Integration/hello.py:/app/hello.py  --name my-py -p 8000:8000 -p 8001:8001 --network prom2 prom-py
