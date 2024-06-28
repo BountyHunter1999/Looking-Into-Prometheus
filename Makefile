@@ -7,3 +7,9 @@ run_first_alert:
 	docker run -d -p 8025:8025 -p 1025:1025 --network prom --name mailpit -e MP_SMTP_AUTH_ALLOW_INSECURE=1  --restart unless-stopped axllent/mailpit
 	docker stop node-exporter
 # docker run -p 9100:9100 --network prom -v $$(pwd)/configs/node_exporter.yml:/etc/
+
+run_app_alert_py:
+	cd 2-Program-Integration && docker build -t prom-py .
+	-docker network create prom2
+	-docker rm -f prom-py
+	docker run -d --rm -p 8000:8000 -p 8001:8001 --network prom2 prom-py
