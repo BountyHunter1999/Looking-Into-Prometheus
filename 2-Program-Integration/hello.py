@@ -7,6 +7,9 @@ REQUESTS = Counter("hello_worlds_total", "Hello Worlds requested.")
 EXCEPTIONS = Counter("hello_world_exceptions_total", "Exceptions serving Hello World.")
 INPROGRESS = Gauge("hello_worlds_inprogress", "Number of Hello Worlds in progress.")
 LAST = Gauge("hello_world_last_time_seconds", "The Last time a Hello World was served.")
+TIME = Gauge("time_seconds", "The current time.")
+# # we must consider thread safety and may need to use mutexes when designing those call back functions
+TIME.set_function(lambda: time.time())
 
 
 class MyHandler(http.server.BaseHTTPRequestHandler):
