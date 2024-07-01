@@ -1,7 +1,7 @@
 import http.server
 import random
 import time
-from prometheus_client import start_http_server, Counter, Gauge
+from prometheus_client import start_http_server, Counter, Gauge, Summary
 
 REQUESTS = Counter("hello_worlds_total", "Hello Worlds requested.")
 EXCEPTIONS = Counter("hello_world_exceptions_total", "Exceptions serving Hello World.")
@@ -10,12 +10,15 @@ LAST = Gauge("hello_world_last_time_seconds", "The Last time a Hello World was s
 TIME = Gauge("time_seconds", "The current time.")
 # # we must consider thread safety and may need to use mutexes when designing those call back functions
 TIME.set_function(lambda: time.time())
+LATENCY = Summary("hello_world_latency_seconds", "Time for a request Hello World.")
 
 
 class MyHandler(http.server.BaseHTTPRequestHandler):
     # @EXCEPTIONS.count_exceptions()
     @INPROGRESS.track_inprogress()
+    @LATENCY.time()
     def do_GET(self):
+        start = time.time()
         REQUESTS.inc()
         # INPROGRESS.inc()
         with EXCEPTIONS.count_exceptions():
@@ -29,6 +32,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         # LAST.set(time.time())
         LAST.set_to_current_time()  # set the guage to current time stamp
         # INPROGRESS.dec()
+        LATENCY.observe(time.time() - start)
 
 
 if __name__ == "__main__":
