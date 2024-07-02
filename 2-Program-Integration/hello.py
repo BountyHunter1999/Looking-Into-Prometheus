@@ -1,7 +1,7 @@
 import http.server
 import random
 import time
-from prometheus_client import start_http_server, Counter, Gauge
+from prometheus_client import start_http_server, Counter, Gauge, Summary, Histogram
 
 REQUESTS = Counter("hello_worlds_total", "Hello Worlds requested.")
 EXCEPTIONS = Counter("hello_world_exceptions_total", "Exceptions serving Hello World.")
@@ -10,12 +10,23 @@ LAST = Gauge("hello_world_last_time_seconds", "The Last time a Hello World was s
 TIME = Gauge("time_seconds", "The current time.")
 # # we must consider thread safety and may need to use mutexes when designing those call back functions
 TIME.set_function(lambda: time.time())
+LATENCY = Summary("hello_world_latency_seconds", "Time for a request Hello World.")
+LATENCY2 = Histogram(
+    "hello_world_latency_seconds_hist",
+    "Time for a request Hello World For Histogram.",
+    # buckets=[0.001, 0.002, 0.005, 0.001, 0.01, 0.1],
+    buckets=[0.1 * x for x in range(1, 10)],  # linear
+    # buckets=[0.1 * 2**x for x in range(1, 10)], # exponentials
+)
 
 
 class MyHandler(http.server.BaseHTTPRequestHandler):
     # @EXCEPTIONS.count_exceptions()
     @INPROGRESS.track_inprogress()
+    @LATENCY.time()
+    @LATENCY2.time()
     def do_GET(self):
+        start = time.time()
         REQUESTS.inc()
         # INPROGRESS.inc()
         with EXCEPTIONS.count_exceptions():
@@ -29,6 +40,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         # LAST.set(time.time())
         LAST.set_to_current_time()  # set the guage to current time stamp
         # INPROGRESS.dec()
+        time.sleep(random.random)
+        LATENCY.observe(time.time() - start)
 
 
 if __name__ == "__main__":
