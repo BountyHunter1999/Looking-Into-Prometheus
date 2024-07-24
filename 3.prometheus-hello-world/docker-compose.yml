@@ -24,5 +24,17 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  prom-middleware:
+    build:
+      context: prom_middleware
+    environment:
+      - PORT=3001
+      - HOST=0.0.0.0
+    ports:
+      - 3001:3001
+    volumes:
+      - ./prom_middleware:/app
+      - /app/node_modules
+
 volumes:
   grafana-data:
