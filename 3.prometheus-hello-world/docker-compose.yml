@@ -47,5 +47,12 @@ services:
       - REPOS=prometheus/prometheus
       - GITHUB_TOKEN=${GITHUB_TOKEN}
 
+  alertmanager:
+    image: prom/alertmanager:main
+    volumes:
+      - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - 9093:9093
+
 volumes:
   grafana-data:

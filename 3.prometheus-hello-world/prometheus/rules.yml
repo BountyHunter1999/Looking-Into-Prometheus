@@ -1,0 +1,18 @@
+# Rules for alert manager
+groups:
+  - name: AllInstances
+    limit: 0
+    rules:
+      - alert: InstanceDown
+        # Condition for alerting
+        expr: up == 0
+        # usually at least 5 minutes is recommended to reduce noise and mitigate various races
+        # inherent in monitoring
+        for: 1m
+        # Annotation - additional information lables to store more information
+        annotations:
+          title: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+        # Labels - additional lables to be attached to the alert
+        labels:
+          severity: "critical"
