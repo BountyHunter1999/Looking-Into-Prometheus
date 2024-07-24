@@ -23,7 +23,7 @@ scrape_configs:
     static_configs:
       - targets: ["prom-middleware:3001"]
 
-  # - job_name: "github-exporter"
-  #   scrape_interval: 5s
-  #   static_configs:
-  #     - targets: ["github-exporter:9171"]
+  - job_name: "github-exporter"
+    scrape_interval: 5m
+    static_configs:
+      - targets: ["github-exporter:9171"]

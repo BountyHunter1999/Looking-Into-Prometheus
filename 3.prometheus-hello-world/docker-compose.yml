@@ -24,6 +24,7 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  # this contains the prom middleware infront of the express application to capture metrics related to http request
   prom-middleware:
     build:
       context: prom_middleware
@@ -35,6 +36,16 @@ services:
     volumes:
       - ./prom_middleware:/app
       - /app/node_modules
+
+  github-exporter:
+    image: githubexporter/github-exporter:latest
+    ports:
+      - 9171:9171
+    environment:
+      - LOG_LEVEL=debug
+      - LISTEN_PORT=9171
+      - REPOS=prometheus/prometheus
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
 
 volumes:
   grafana-data:
