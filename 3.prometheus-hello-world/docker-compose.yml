@@ -3,6 +3,7 @@ services:
     image: prom/prometheus:v2.53.0
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules.yml:/etc/prometheus/rules.yml
     ports:
       - 9090:9090
 
@@ -47,12 +48,22 @@ services:
       - REPOS=prometheus/prometheus
       - GITHUB_TOKEN=${GITHUB_TOKEN}
 
-  alertmanager:
+  alert-manager:
     image: prom/alertmanager:main
     volumes:
-      - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./prometheus/alert_manager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    environment:
+      - WEBHOOK_URL=${WEBHOOK_URL}
     ports:
       - 9093:9093
+
+  mailpit:
+    image: axllent/mailpit
+    environment:
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+    ports:
+      - 1025:1025
+      - 8025:8025
 
 volumes:
   grafana-data:

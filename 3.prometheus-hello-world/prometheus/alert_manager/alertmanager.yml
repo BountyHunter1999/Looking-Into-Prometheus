@@ -1,0 +1,64 @@
+# https://github.com/prometheus/alertmanager/blob/main/doc/examples/simple.yml
+global:
+  smtp_smarthost: "mailpit:1025"
+  # smtp_auth_username: ""
+  # smpt_auth_password:
+  # smtp_auth_indentity:
+  # smtp_send_resolved: true
+  smtp_from: "hariom@example.org"
+  smtp_require_tls: false # this will tell alert manager not to require TLS
+
+route:
+  group_by: ["alertname"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  # default receiver if no match is found in 'routes'
+  receiver: "web.hook"
+
+  routes:
+    # Route for critical and high severity alerts
+    - matchers:
+        # regex
+        - severity=~"^(critical|high)$"
+      receiver: "critical-receivers"
+      continue: true
+
+    # Route for warning severity alerts
+    - matchers:
+        - severity=~"warning|critical"
+      receiver: "email"
+
+receivers:
+  - name: "critical-receivers"
+    webhook_configs:
+      - url: "https://webhook.site/f4a690a8-bb85-47f7-a4fc-db6e56fee5b2"
+        send_resolved: true
+      # - url: '${WEBHOOK_URL}'
+    email_configs:
+      - to: "shrish@thefireflytech.com"
+        send_resolved: true
+    # - name: "slack-receiver"
+    #   slack_configs:
+    #     - channel: "#monitoring-instances"
+    #       api_url: ""
+    #       send_resolved: true
+
+  - name: "web.hook"
+    webhook_configs:
+      - url: "https://webhook.site/4964fc05-976a-402e-bff9-9fc05b793c20"
+      # - url: '${WEBHOOK_URL}'
+  - name: "email"
+    email_configs:
+      - to: "shrish@thefireflytech.com"
+  # - name: "slack-receiver"
+  # slack_configs:
+  #   - channel: "#monitoring-instances"
+  #     api_url: ""
+  #     send_resolved: true
+inhibit_rules:
+  - source_match:
+      severity: "critical"
+    target_match:
+      severity: "warning"
+    equal: ["alertname", "dev", "instance"]
